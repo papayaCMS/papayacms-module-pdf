@@ -129,17 +129,16 @@ class papaya_pdf_table {
   * add a table cell
   *
   * @param array $attr attributes
-  * @param boolean $headerCell new cell is header cell (optional, default value FALSE)
+  * @param boolean $isHeaderCell new cell is header cell (optional, default value FALSE)
   * @access public
   */
-  function addCell($attr, $headerCell = FALSE) {
+  function addCell($attr, $isHeaderCell = FALSE) {
     if (count($this->_rows) <= 0) {
       $this->addRow();
     }
     $rowIdx = count($this->_rows) - 1;
-    if ($headerCell) {
-      $this->_currentCell =
-        new papaya_pdf_table_headercell($this->_rows[$rowIdx], $attr);
+    if ($isHeaderCell) {
+      $this->_currentCell = new papaya_pdf_table_headercell($this->_rows[$rowIdx], $attr);
     } else {
       $this->_currentCell = new papaya_pdf_table_cell($this->_rows[$rowIdx], $attr);
     }

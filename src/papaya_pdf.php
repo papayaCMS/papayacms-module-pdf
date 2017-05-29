@@ -2350,10 +2350,10 @@ class papaya_pdf extends UFPDF {
   * @param array $attr
   * @access public
   */
-  function openTableCell($attr) {
+  function openTableCell($attr, $isHeaderCell = FALSE) {
     $this->writeBuffer();
     if (isset($this->tableBuffer)) {
-      $this->tableBuffer->addCell($attr);
+      $this->tableBuffer->addCell($attr, $isHeaderCell);
       $this->elementMode = 'table';
     }
   }
