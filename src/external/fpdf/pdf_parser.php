@@ -234,7 +234,7 @@ class pdf_parser {
 				fseek($this->f, $o_pos+strlen($m[1]));
     		}
     		
-			$c =&  new pdf_context($this->f);
+			$c = new pdf_context($this->f);
     	    $trailer = $this->pdf_read_value($c);
     	    
     	    if (isset($trailer[1]['/Prev'])) {
@@ -267,7 +267,7 @@ class pdf_parser {
      * @param string $token a Token
      * @return mixed
      */
-    function pdf_read_value(&$c, $token = null) {
+    function pdf_read_value($c, $token = null) {
     	if (is_null($token)) {
     	    $token = $this->pdf_read_token($c);
     	}
@@ -459,7 +459,7 @@ class pdf_parser {
      * @param array $obj_spec The object-data
      * @param boolean $encapsulate Must set to true, cause the parsing and fpdi use this method only without this para
      */
-    function pdf_resolve_object(&$c, $obj_spec, $encapsulate = true) {
+    function pdf_resolve_object($c, $obj_spec, $encapsulate = true) {
         // Exit if we get invalid data
     	if (!is_array($obj_spec)) {
             return false;
@@ -540,7 +540,7 @@ class pdf_parser {
      * @param object $c pdf_context
      * @return mixed
      */
-    function pdf_read_token(&$c)
+    function pdf_read_token($c)
     {
     	// If there is a token available
     	// on the stack, pop it out and

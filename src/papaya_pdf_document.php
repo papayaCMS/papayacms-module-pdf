@@ -132,7 +132,7 @@ class papaya_pdf_document {
   * @param boolean $hasCover
   * @return void
   */
-  function outputPageIndex(DOMElement $node, $hasCover) {
+  function outputPageIndex(DOMElement $node = NULL, $hasCover = FALSE) {
     if (isset($node)) {
       $position = $hasCover ? 2 : 1;
       $this->pdfConf->pdfInsertPage($this->pdf, $position, 'toc', TRUE);
@@ -154,7 +154,7 @@ class papaya_pdf_document {
   * @param string $pageName page name
   * @access public
   */
-  function outputPageNamed(DOMElement $node, $pageName) {
+  function outputPageNamed(DOMElement $node = NULL, $pageName = '') {
     if (isset($node)) {
       $this->pdfConf->pdfAddPage($this->pdf, $pageName, TRUE);
       $xpath = new DOMXPath($node->ownerDocument);
@@ -204,7 +204,7 @@ class papaya_pdf_document {
   * @param DOMElement $footerNode
   * @return void
   */
-  function outputHeaderAndFooter(DOMElement $headerNode, DOMElement $footerNode) {
+  function outputHeaderAndFooter(DOMElement $headerNode = NULL, DOMElement $footerNode = NULL) {
     foreach ($this->pdf->pageInfos as $pageNumber => $pageInfos) {
       $this->pdf->gotoPageColumn($pageNumber, 1);
       if (!empty($pageInfos['template'])) {

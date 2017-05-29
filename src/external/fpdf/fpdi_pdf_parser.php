@@ -84,10 +84,10 @@ class fpdi_pdf_parser extends pdf_parser {
      * @param string $filename  Source-Filename
      * @param object $fpdi      Object of type fpdi
      */
-    function fpdi_pdf_parser($filename,&$fpdi) {
-        $this->fpdi =& $fpdi;
-		$this->filename = $filename;
-		
+    function __construct($filename, $fpdi) {
+        $this->fpdi =$fpdi;
+        $this->filename = $filename;
+
         parent::pdf_parser($filename);
 
         // Get Info
@@ -98,7 +98,7 @@ class fpdi_pdf_parser extends pdf_parser {
 
         // Read pages
         $this->read_pages($this->c, $pages, $this->pages);
-        
+
         // count pages;
         $this->page_count = count($this->pages);
     }
@@ -251,9 +251,17 @@ class fpdi_pdf_parser extends pdf_parser {
     }
     
     function deescapeString($s) {
-        $torepl = array("/\\\(\d{1,3})/e" => "chr(octdec(\\1))",
-                        "/\\\\\(/" => "(",
-                        "/\\\\\)/" => ")");
+        $s = preg_replace_callback(
+          '(\\\(\d{1,3}))',
+          function($match) {
+            return chr(octdec($match[1]));
+          },
+          $s
+        );
+        $torepl = array(
+            "/\\\\\(/" => "(",
+            "/\\\\\)/" => ")"
+        );
         return preg_replace(array_keys($torepl),$torepl,$s);
     }
 
@@ -441,7 +449,7 @@ class fpdi_pdf_parser extends pdf_parser {
      * @param array /Pages
      * @param array the result-array
      */
-    function read_pages (&$c, &$pages, &$result) {
+    function read_pages ($c, &$pages, &$result) {
 
         // Get the kids dictionary
     	$kids = $this->pdf_resolve_object ($c, $pages[1][1]['/Kids']);
