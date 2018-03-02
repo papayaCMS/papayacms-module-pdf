@@ -96,7 +96,7 @@ function Text($x,$y,$txt)
   //Output a string
   $s=sprintf('BT %.2f %.2f Td %s Tj ET',$x*$this->k,($this->h-$y)*$this->k,$this->_escapetext($txt));
   if ($this->underline and $txt!='')
-    $s.=' '.$this->_dounderline($x,$y,$this->GetStringWidth($txt),$txt);
+    $s.=' '.$this->_dounderline($x,$y,$txt);
   if ($this->ColorFlag)
     $s='q '.$this->TextColor.' '.$s.' Q';
   $this->_out($s);
@@ -168,7 +168,7 @@ function Cell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='')
     $txtstring=$this->_escapetext($txt);
     $s.=sprintf('BT %.2f %.2f Td %s Tj ET',($this->x+$dx)*$k,($this->h-($this->y+.5*$h+.3*$this->FontSize))*$k,$txtstring);
     if ($this->underline)
-      $s.=' '.$this->_dounderline($this->x+$dx,$this->y+.5*$h+.3*$this->FontSize,$width,$txt);
+      $s.=' '.$this->_dounderline($this->x+$dx,$this->y+.5*$h+.3*$this->FontSize,$txt,$width);
     if ($this->ColorFlag)
       $s.=' Q';
     if ($link)
@@ -264,15 +264,6 @@ function _puttruetypeunicode($font) {
   $this->_putstream(fread($f,$size));
   fclose($f);
   $this->_out('endobj');
-}
-
-function _dounderline($x,$y,$width,$txt)
-{
-  //Underline text
-  $up=$this->CurrentFont['up'];
-  $ut=$this->CurrentFont['ut'];
-  $w=$width+$this->ws*substr_count($txt,' ');
-  return sprintf('%.2f %.2f %.2f %.2f re f',$x*$this->k,($this->h-($y-$up/1000*$this->FontSize))*$this->k,$w*$this->k,-$ut/1000*$this->FontSizePt);
 }
 
 function _textstring($s)

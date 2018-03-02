@@ -1317,8 +1317,9 @@ class papaya_pdf extends UFPDF {
           TRUE
         );
       } else {
+        $mergedBuffer = array_merge($lineBuffer, $buffer);
         $startedAt = $this->writeBufferLine(
-          array_merge($lineBuffer, $buffer),
+          $mergedBuffer,
           $para,
           $bufferWidth + $lineBufferWidth,
           $paraStyle['align'],
@@ -2568,52 +2569,25 @@ class papaya_pdf extends UFPDF {
   * @access public
   */
   function removeAttributeStyle($attr, $value) {
-    if (isset($value) && $value != '') {
-      switch ($attr) {
-      case 'bullet-chars':
-        @array_shift($this->currentStyle['bullet-chars']);
-        if (count($this->currentStyle['bullet-chars']) <= 0) {
-          $this->currentStyle['bullet-chars'] = $this->defaultStyle['bullet-chars'];
+    $attributes = [
+      'bullet-chars' => $this->defaultStyle['bullet-chars'],
+      'align' => $this->defaultStyle['align'],
+      'bgcolor' => $this->defaultStyle['bgcolor'],
+      'fgcolor' => $this->defaultStyle['fgcolor'],
+      'align' => $this->defaultStyle['align'],
+      'font-family' => NULL,
+      'font-size' => NULL,
+    ];
+    if (isset($value) && $value != '' && array_key_exists($attr, $attributes)) {
+      if (
+        isset($this->currentStyle[$attr]) &&
+        is_array($this->currentStyle[$attr]) &&
+        count($this->currentStyle[$attr]) > 0
+      ) {
+        array_shift($this->currentStyle[$attr]);
+        if (count($this->currentStyle[$attr]) <= 0) {
+          $this->currentStyle[$attr] = $attributes[$attr];
         }
-        break;
-      case 'align':
-        if (in_array($value, array('left', 'right', 'center', 'justify'))) {
-          @array_shift($this->currentStyle['align']);
-          if (count($this->currentStyle['align']) <= 0) {
-            $this->currentStyle['align'] = $this->defaultStyle['align'];
-          }
-        }
-        break;
-      case 'bgcolor':
-        @array_shift($this->currentStyle['bgcolor']);
-        if (count($this->currentStyle['bgcolor']) <= 0) {
-          $this->currentStyle['bgcolor'] = $this->defaultStyle['bgcolor'];
-        }
-        break;
-      case 'fgcolor':
-        @array_shift($this->currentStyle['fgcolor']);
-        if (count($this->currentStyle['bgcolor']) <= 0) {
-          $this->currentStyle['bgcolor'] = $this->defaultStyle['bgcolor'];
-        }
-        break;
-      case 'font-family':
-        if (isset($this->currentStyle['font-family']) &&
-            is_array($this->currentStyle['font-family'])) {
-          @array_shift($this->currentStyle['font-family']);
-          if (count($this->currentStyle['font-family']) <= 0) {
-            $this->currentStyle['font-family'] = NULL;
-          }
-        }
-        break;
-      case 'font-size':
-        if (isset($this->currentStyle['font-size']) &&
-            is_array($this->currentStyle['font-size'])) {
-          @array_shift($this->currentStyle['font-size']);
-          if (count($this->currentStyle['font-size']) <= 0) {
-            $this->currentStyle['font-size'] = NULL;
-          }
-        }
-        break;
       }
     }
   }

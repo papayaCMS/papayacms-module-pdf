@@ -1472,12 +1472,13 @@ function _newobj()
   $this->_out($this->n.' 0 obj');
 }
 
-function _dounderline($x,$y,$txt)
+function _dounderline($x,$y,$txt,$width=NULL)
 {
   //Underline text
+  $width = isset($width) ? $width : $this->GetStringWidth($txt);
   $up=$this->CurrentFont['up'];
   $ut=$this->CurrentFont['ut'];
-  $w=$this->GetStringWidth($txt)+$this->ws*substr_count($txt,' ');
+  $w=$width+$this->ws*substr_count($txt,' ');
   return sprintf('%.2f %.2f %.2f %.2f re f',$x*$this->k,($this->h-($y-$up/1000*$this->FontSize))*$this->k,$w*$this->k,-$ut/1000*$this->FontSizePt);
 }
 
