@@ -539,9 +539,10 @@ class papaya_pdf extends UFPDF {
   /**
   * pre process bookmarks, optimize level structure
   * @return void
-  */  function prepareBookmarks() {
+  */
+  function prepareBookmarks() {
     $nb = count($this->outlines);
-    if (0 === $nb) {
+    if ($nb == 0) {
       return;
     }
     $lru = array();
@@ -552,8 +553,8 @@ class papaya_pdf extends UFPDF {
         $o['l'] = $level + 1;
         $this->outlines[$i] = $o;
       }
-      if ($o['l'] > 0 && isset($lru[$o['l'] - 1])) {
-        $parent = $lru[$o['l'] - 1];
+      $parent = isset($lru[$o['l'] - 1]) ? $lru[$o['l'] - 1] : $nb;
+      if ($o['l'] > 0 && isset($this->outlines[$parent])) {
         //Set parent and last pointers
         $this->outlines[$i]['parent'] = $parent;
         $this->outlines[$parent]['last'] = $i;
@@ -564,10 +565,12 @@ class papaya_pdf extends UFPDF {
       } else {
         $this->outlines[$i]['parent'] = $nb;
       }
-      if ($i > 0 && $o['l'] <= $level && isset($lru[$o['l']])) {
+      if ($o['l'] <= $level && $i > 0 && isset($lru[$o['l']])) {
         //Set prev and next pointers
         $prev = $lru[$o['l']];
-        $this->outlines[$prev]['next'] = $i;
+        if (isset($this->outlines[$prev])) {
+          $this->outlines[$prev]['next'] = $i;
+        }
         $this->outlines[$i]['prev'] = $prev;
       }
       $lru[$o['l']] = $i;
