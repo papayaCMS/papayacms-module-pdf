@@ -26,7 +26,7 @@ define('FPDF_FONTPATH', '');
 * updf super class
 */
 /** @noinspection PhpIncludeInspection */
-require_once(dirname(__FILE__).'/external/fpdf/ufpdf.php');
+require_once __DIR__.'/external/fpdf/ufpdf.php';
 
 /**
 * Implement FPDF/FPDI for papaya CMS
@@ -539,22 +539,20 @@ class papaya_pdf extends UFPDF {
   /**
   * pre process bookmarks, optimize level structure
   * @return void
-  */
-  function prepareBookmarks() {
+  */  function prepareBookmarks() {
     $nb = count($this->outlines);
-    if ($nb == 0) {
+    if (0 === $nb) {
       return;
     }
     $lru = array();
     $level = 0;
-    //header('Content-type: text/plain');
     foreach ($this->outlines as $i => $o) {
       //fix indent if here is a level missing
       if ($o['l'] > 0 && $o['l'] - 1 >= $level) {
         $o['l'] = $level + 1;
         $this->outlines[$i] = $o;
       }
-      if ($o['l'] > 0) {
+      if ($o['l'] > 0 && isset($lru[$o['l'] - 1])) {
         $parent = $lru[$o['l'] - 1];
         //Set parent and last pointers
         $this->outlines[$i]['parent'] = $parent;
@@ -566,7 +564,7 @@ class papaya_pdf extends UFPDF {
       } else {
         $this->outlines[$i]['parent'] = $nb;
       }
-      if ($o['l'] <= $level && $i > 0) {
+      if ($i > 0 && $o['l'] <= $level && isset($lru[$o['l']])) {
         //Set prev and next pointers
         $prev = $lru[$o['l']];
         $this->outlines[$prev]['next'] = $i;
