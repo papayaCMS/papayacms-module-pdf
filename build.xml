@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project name="papaya Project" default="build">
+<project name="papaya Module Package" default="build">
 
   <property name="directory.src" value="${project.basedir}" override="true"/>
   <property name="directory.document-root" value="${directory.src}/htdocs" override="true"/>
@@ -16,29 +15,6 @@
   <property name="database.uri" value="${configuration.database.uri}" override="true"/>
 
   <property name="revision.project" value="" override="true"/>
-
-  <tstamp prefix="time"/>
-  <property name="time.project" value="${time.DSTAMP}T${time.TSTAMP}"/>
-
-  <fileset id="public" dir="${directory.document-root}">
-    <include name="**"/>
-    <exclude name="**/.svn/**"/>
-    <exclude name="**/.git/**"/>
-    <exclude name="conf.inc.php"/>
-    <exclude name="papaya/**"/>
-  </fileset>
-
-  <fileset id="source" dir="${directory.src}">
-    <include name="src/**"/>
-    <exclude name="templates/**"/>
-    <exclude name="**/.svn/**"/>
-    <exclude name="**/.git/**"/>
-  </fileset>
-
-  <fileset id="dependencies" dir="${directory.src}">
-    <include name="dependencies-install.json"/>
-    <include name="dependencies-install.lock"/>
-  </fileset>
 
   <target name="build" depends="prepare,dependencies-install,config" description="Install/Configure"/>
 
@@ -72,10 +48,10 @@
     <property name="config.file" value="${directory.src}/papaya.php"/>
     <property name="papaya.database.uri" value="${database.uri}"/>
     <property name="papaya.development.active" value="(bool)TRUE"/>
+    <property name="hasConfiguration" value="false"/>
+    <available file="${config.file}" property="hasConfiguration" value="true"/>
     <if>
-      <not>
-        <available file="${config.file}"/>
-      </not>
+      <isfalse value="${hasConfiguration}"/>
       <then>
         <copy file="${config.template}" tofile="${config.file}">
           <filterchain>
@@ -117,14 +93,20 @@
     Determine the project code revision from Git metadata
    -->
   <target name="project-revision" description="Get project revision from git" hidden="true">
+    <property name="revision.project" value="dev" override="true"/>
     <trycatch property="vcs.error">
       <try>
+        <property name="isGitRepository" value="false"/>
+        <available file=".git" type="dir" property="isGitRepository" value="true"/>
         <if>
-          <available file=".git" type="dir"/>
+          <istrue value="${isGitRepository}"/>
           <then>
-            <property name="revision.project" value="dev"/>
-            <exec executable="${executable.git}" returnProperty="git.return" outputProperty="git.output"
-                  dir="${project.basedir}">
+            <property name="revision.project" value="dev" override="true"/>
+            <exec
+              executable="${executable.git}"
+              returnProperty="git.return"
+              outputProperty="git.output"
+              dir="${project.basedir}">
               <arg line="describe --tags"/>
             </exec>
             <if>
@@ -133,18 +115,15 @@
                 <property name="revision.project" value="${git.output}" override="true"/>
               </then>
             </if>
-            <property name="revision.project.suffix" value="-${revision.project}"/>
+            <echo message="Current revision: ${revision.project}"/>
           </then>
           <else>
-            <property name="revision.project" value="dev" override="true"/>
+            <echo message="Project is not a Git repository. No revisions available."/>
           </else>
         </if>
-        <echo message="Current revision: ${revision.project}"/>
       </try>
       <catch>
-        <echo level="warning">There was an error while reading revision information. Current revision is
-          unknown.
-        </echo>
+        <echo level="warning">There was an error while reading revision information. Current revision is unknown.</echo>
         <echo level="warning">Please make sure that the git executable is available.</echo>
         <echo level="debug">${vcs.error}</echo>
         <property name="revision.project" value="unknown" override="true"/>
@@ -156,7 +135,7 @@
     <property name="revision.papaya" value=""/>
     <trycatch property="error">
       <try>
-        <adhoc-task name="dependencies-install-version">
+        <adhoc-task name="composer-version">
           <![CDATA[
         class PapayaVersionTask extends Task {
 
@@ -173,15 +152,21 @@
         }
         ]]>
         </adhoc-task>
-        <dependencies-install-version/>
+        <composer-version/>
         <echo message="Papaya revision: ${revision.papaya}"/>
       </try>
       <catch>
         <echo level="warning">There was an error while reading papaya core version information.</echo>
         <echo level="debug">${error}</echo>
-        <property name="revision.project" value="unknown" override="true"/>
+        <property name="revision.papaya" value="unknown" override="true"/>
       </catch>
     </trycatch>
+  </target>
+
+  <target name="run" description="Start the PHP built-in webserver">
+    <exec executable="php" passthru="true">
+      <arg line="-S localhost:8080 -t ./htdocs server.php"/>
+    </exec>
   </target>
 
 </project>
